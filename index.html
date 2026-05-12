@@ -87,7 +87,8 @@ header{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:
 .gear-deposit{font-size:11.5px;color:var(--muted);padding-top:6px;border-top:1px solid var(--border)}
 .gear-deposit strong{color:var(--text);font-weight:500}
 .add-btn{width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:transparent;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.18s;letter-spacing:0.03em}
-.add-btn:hover,.add-btn.active{background:var(--gold);border-color:var(--gold);color:#000}
+.request-item-card{background:transparent;border:1px dashed var(--border);border-radius:8px;padding:22px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;min-height:160px}.request-item-card-icon{font-size:24px;opacity:0.4}.request-item-card-title{font-size:14px;font-weight:600;color:var(--muted)}.request-item-card-sub{font-size:12px;color:var(--dim);line-height:1.5}.request-item-link{display:inline-flex;align-items:center;gap:6px;margin-top:4px;font-size:12px;color:var(--gold);font-weight:500;text-decoration:none;transition:opacity 0.2s}.request-item-link:hover{opacity:0.75}
+.add-btn:hover,.add-btn.active{background:var(--gold);border-color:var(--gold);color:#000}.add-btn.active .btn-hover{display:none}.add-btn.active .btn-default{display:inline}.add-btn.active:hover{background:var(--error);border-color:var(--error);color:#fff}.add-btn.active:hover .btn-default{display:none}.add-btn.active:hover .btn-hover{display:inline}
 
 /* ===================== RESERVE PAGE ===================== */
 .reserve-wrap{max-width:1080px;margin:0 auto;padding:44px 40px 80px}
@@ -113,14 +114,21 @@ select option{background:#1a1a1a}
 .form-note{font-size:11.5px;color:var(--muted);line-height:1.55;margin-top:5px}
 
 /* TERMS CHECKBOX */
-.terms-check-wrap{display:flex;align-items:flex-start;gap:12px;padding:16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:16px}
-.terms-check-wrap.error{border-color:var(--error)}
+.terms-check-wrap{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:12px;cursor:pointer;user-select:none}
+.terms-check-wrap:hover{border-color:rgba(200,168,106,0.4)}
+.custom-check{width:22px;height:22px;min-width:22px;border:2px solid var(--border);border-radius:4px;display:flex;align-items:center;justify-content:center;transition:all 0.15s;flex-shrink:0;background:var(--surface2)}
+.custom-check.checked{background:var(--gold);border-color:var(--gold)}
+.custom-check.checked::after{content:"✓";color:#000;font-size:13px;font-weight:700;line-height:1}
+.terms-check-text{font-size:13px;color:var(--muted);line-height:1.55}
 .terms-checkbox{width:18px;height:18px;accent-color:var(--gold);cursor:pointer;flex-shrink:0;margin-top:1px}
 .terms-check-text{font-size:13px;color:var(--muted);line-height:1.55}
 .terms-link{color:var(--gold);text-decoration:none;font-weight:500;cursor:pointer;background:none;border:none;font-family:'DM Sans',sans-serif;font-size:13px;padding:0}
 .terms-link:hover{text-decoration:underline}
 
 .submit-btn{width:100%;padding:15px;background:var(--gold);color:#000;border:none;border-radius:var(--radius);font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:0.09em;cursor:pointer;transition:opacity 0.18s;margin-top:4px}
+.submit-btn:disabled{opacity:0.6;cursor:not-allowed}
+.form-error{background:rgba(217,95,74,0.1);border:1px solid var(--error);border-radius:var(--radius);padding:12px 16px;font-size:13px;color:var(--error);margin-top:12px;display:none}
+.form-error.visible{display:block}
 .submit-btn:hover{opacity:0.83}
 .submit-note{font-size:11.5px;color:var(--muted);text-align:center;margin-top:12px;line-height:1.55}
 
@@ -205,6 +213,8 @@ footer{border-top:1px solid var(--border);padding:28px 40px;display:flex;justify
   .confirm-wrap{padding:48px 18px}
 }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>emailjs.init("qIIZYVEoCWLSr-JqJ");</script>
 </head>
 <body>
 
@@ -338,6 +348,12 @@ footer{border-top:1px solid var(--border);padding:28px 40px;display:flex;justify
               <input type="tel" id="phone" placeholder="514 000-0000">
             </div>
           </div>
+          <div class="form-row full">
+            <div class="form-group">
+              <label id="lbl-instagram">Instagram handle or portfolio (optional)</label>
+              <input type="text" id="instagram" placeholder="@yourhandle or website.com">
+            </div>
+          </div>
         </div>
 
         <div class="form-block">
@@ -366,15 +382,27 @@ footer{border-top:1px solid var(--border);padding:28px 40px;display:flex;justify
           </div>
         </div>
 
-        <div class="terms-check-wrap" id="terms-wrap">
-          <input type="checkbox" class="terms-checkbox" id="terms-checkbox">
+        <div class="terms-check-wrap" id="terms-wrap" onclick="toggleCheck('terms-check-icon','terms-checkbox')">
+          <div class="custom-check" id="terms-check-icon"></div>
+          <input type="hidden" id="terms-checkbox" value="0">
           <span class="terms-check-text" id="terms-check-text">
-            I have read and agree to the <button class="terms-link" onclick="showTerms()" id="terms-link-btn">Rental Terms & Agreement</button>. I understand that a signed copy and 2 valid pieces of ID are required at pickup.
+            I have read and agree to the <button class="terms-link" onclick="event.stopPropagation();showTerms()" id="terms-link-btn">Rental Terms & Agreement</button>. I understand that a signed copy and 2 valid pieces of ID are required at pickup.
           </span>
         </div>
 
+        <div class="terms-check-wrap" onclick="toggleCheck('copy-check-icon','copy-checkbox')">
+          <div class="custom-check" id="copy-check-icon"></div>
+          <input type="hidden" id="copy-checkbox" value="0">
+          <span class="terms-check-text" id="copy-check-text">Send a copy of this request to my email</span>
+        </div>
+        <div class="terms-check-wrap" onclick="toggleCheck('marketing-check-icon','marketing-checkbox')">
+          <div class="custom-check" id="marketing-check-icon"></div>
+          <input type="hidden" id="marketing-checkbox" value="0">
+          <span class="terms-check-text" id="marketing-check-text">I'm open to receiving discount offers and deals from MDB Rentals</span>
+        </div>
         <button class="submit-btn" onclick="submitReservation()" id="submit-btn">SEND RESERVATION REQUEST</button>
-        <p class="submit-note" id="submit-note">Your request will be sent to our team. We'll confirm availability and follow up shortly.</p>
+        <p class="submit-note" id="submit-note">Your request will be sent directly to our team. We'll confirm availability and follow up shortly.</p>
+        <div class="form-error" id="form-error">Something went wrong. Please email us directly at maisondubaroque@gmail.com</div>
       </div>
 
       <div class="order-summary">
@@ -632,22 +660,22 @@ const EQUIPMENT = [
   // CAMERAS
   { id:'zve1', category:'camera', tag:'Vlog', daily:125, deposit:800,
     name:{en:'Sony ZV-E1',fr:'Sony ZV-E1'},
-    desc:{en:'Full-frame mirrorless · Cage + 1 battery included',fr:'Sans-miroir plein format · Cage + 1 batterie inclus'} },
+    desc:{en:'Full-frame mirrorless · 1 battery, charger + strap included',fr:'Sans-miroir plein format · 1 batterie, chargeur + courroie inclus'} },
   { id:'a7iv', category:'camera', tag:'Photo / Video', daily:150, deposit:1500,
     name:{en:'Sony A7 IV',fr:'Sony A7 IV'},
-    desc:{en:'Full-frame hybrid · Cage + 1 battery included',fr:'Hybride plein format · Cage + 1 batterie inclus'} },
+    desc:{en:'Full-frame hybrid · 1 battery, charger + strap included',fr:'Hybride plein format · 1 batterie, chargeur + courroie inclus'} },
   { id:'a7siii', category:'camera', tag:'Cinema', daily:175, deposit:2000,
     name:{en:'Sony A7S III',fr:'Sony A7S III'},
-    desc:{en:'Low-light cinema powerhouse · Cage + 1 battery included',fr:'Bête de basse lumière · Cage + 1 batterie inclus'} },
+    desc:{en:'Low-light cinema powerhouse · 1 battery, charger + strap included',fr:'Bête de basse lumière · 1 batterie, chargeur + courroie inclus'} },
   { id:'a7rv', category:'camera', tag:'High-Res', daily:200, deposit:2500,
     name:{en:'Sony A7R V',fr:'Sony A7R V'},
-    desc:{en:'61MP full-frame, unmatched resolution · Cage + 1 battery included',fr:'61MP plein format, résolution incomparable · Cage + 1 batterie inclus'} },
+    desc:{en:'61MP full-frame, unmatched resolution · 1 battery, charger + strap included',fr:'61MP plein format, résolution incomparable · 1 batterie, chargeur + courroie inclus'} },
   { id:'a7v', category:'camera', tag:'Photo / Video', daily:175, deposit:2000,
     name:{en:'Sony A7 V',fr:'Sony A7 V'},
-    desc:{en:'Full-frame hybrid, latest gen · Cage + 1 battery included',fr:'Hybride plein format, dernière génération · Cage + 1 batterie inclus'} },
+    desc:{en:'Full-frame hybrid, latest gen · 1 battery, charger + strap included',fr:'Hybride plein format, dernière génération · 1 batterie, chargeur + courroie inclus'} },
   { id:'fx3', category:'camera', tag:'Cinema', daily:200, deposit:2500,
     name:{en:'Sony FX3',fr:'Sony FX3'},
-    desc:{en:'Full-frame cinema line · Cage + 1 battery included',fr:'Ligne cinéma plein format · Cage + 1 batterie inclus'} },
+    desc:{en:'Full-frame cinema line · 1 battery, charger + strap included',fr:'Ligne cinéma plein format · 1 batterie, chargeur + courroie inclus'} },
   // LENSES
   { id:'laowa10', category:'lens', tag:'Ultra-wide', daily:40, deposit:500,
     name:{en:'Laowa 10mm f/2.8 Zero-D FF AF',fr:'Laowa 10mm f/2.8 Zero-D FF AF'},
@@ -719,7 +747,7 @@ const T = {
     buysellTitle:'WE ALSO BUY & SELL USED GEAR',
     buysellDesc:"Looking to sell your camera body, lenses, or accessories? We buy used Sony gear and also have equipment available for sale. Reach out and let's talk.",
     cats:{camera:'Cameras',lens:'Lenses',addon:'Add-ons'},
-    items:'items', addBtn:'+ Add to Request', addedBtn:'✓ Added', cartLabel:'Reserve',
+    items:'items', addBtn:'+ Add to Request', addedBtn:'✓ Added', removeBtn:'✕ Remove', cartLabel:'Reserve',
     backLabel:'Back to equipment', termsBackLabel:'Back to reservation',
     reserveEyebrow:'Rental Request', reserveTitle:'RESERVATION',
     reserveSub:"Fill in your details to request this equipment. We'll confirm availability and follow up shortly.",
@@ -749,7 +777,7 @@ const T = {
     alertFields:'Please fill in all required fields.',
     alertCart:'Please add at least one item to your request.',
     alertTerms:'Please agree to the rental terms before submitting.',
-    termsReturnBtn:'← Return to Reservation',
+    termsReturnBtn:'← Return to Reservation',lblInstagram:'Instagram handle or portfolio (optional)',copyCheck:'Send a copy of this request to my email',marketingCheck:'I\'m open to receiving discount offers and deals from MDB Rentals',
   },
   fr: {
     heroEyebrow:"Location d'équipement — Montréal",
@@ -760,7 +788,7 @@ const T = {
     buysellTitle:'ON ACHÈTE ET REVEND DU MATÉRIEL USAGÉ',
     buysellDesc:"Tu cherches à vendre ton boîtier, tes objectifs ou tes accessoires? On achète le matériel Sony usagé et on a également de l'équipement à vendre. Contacte-nous.",
     cats:{camera:'Caméras',lens:'Objectifs',addon:'Accessoires'},
-    items:'articles', addBtn:'+ Ajouter à la demande', addedBtn:'✓ Ajouté', cartLabel:'Réserver',
+    items:'articles', addBtn:'+ Ajouter à la demande', addedBtn:'✓ Ajouté', removeBtn:'✕ Retirer', cartLabel:'Réserver',
     backLabel:"Retour à l'équipement", termsBackLabel:'Retour à la réservation',
     reserveEyebrow:'Demande de location', reserveTitle:'RÉSERVATION',
     reserveSub:"Remplis tes informations pour demander cet équipement. On confirme la disponibilité dans les prochaines heures.",
@@ -790,7 +818,7 @@ const T = {
     alertFields:'Veuillez remplir tous les champs obligatoires.',
     alertCart:'Veuillez ajouter au moins un article à votre demande.',
     alertTerms:'Veuillez accepter les conditions de location avant de soumettre.',
-    termsReturnBtn:'← Retour à la réservation',
+    termsReturnBtn:'← Retour à la réservation',lblInstagram:'Handle Instagram ou portfolio (optionnel)',copyCheck:'Recevoir une copie de cette demande par courriel',marketingCheck:'J\'accepte de recevoir des offres et promotions de MDB Rentals',
   }
 };
 
@@ -829,7 +857,7 @@ function setLang(l) {
   setTxt('lbl-postal', t.lblPostal); setTxt('lbl-notes', t.lblNotes);
   setTxt('terms-link-btn', t.termsLinkLabel);
   const tct = document.getElementById('terms-check-text');
-  if(tct) tct.innerHTML = t.termsCheckPrefix + `<button class="terms-link" onclick="showTerms()" id="terms-link-btn">${t.termsLinkLabel}</button>` + t.termsCheckSuffix;
+  if(tct) tct.innerHTML = t.termsCheckPrefix + `<button class="terms-link" onclick="event.stopPropagation();showTerms()" id="terms-link-btn">${t.termsLinkLabel}</button>` + t.termsCheckSuffix;
   setTxt('submit-btn', t.submitBtn); setTxt('submit-note', t.submitNote);
   setTxt('os-title', t.osTitle); setTxt('os-subtotal-lbl', t.osSubtotalLbl);
   setTxt('os-total-lbl', t.osTotalLbl); setTxt('os-deposit-lbl', t.osDepositLbl);
@@ -837,6 +865,9 @@ function setLang(l) {
   setTxt('confirm-title', t.confirmTitle); setTxt('confirm-sub', t.confirmSub);
   setTxt('browse-more-btn', t.browseMore);
   setTxt('terms-return-btn', t.termsReturnBtn);
+  setTxt('lbl-instagram', t.lblInstagram);
+  setTxt('copy-check-text', t.copyCheck);
+  setTxt('marketing-check-text', t.marketingCheck);
   set('footer-info', t.footerInfo);
   document.getElementById('terms-en').style.display = l === 'en' ? 'block' : 'none';
   document.getElementById('terms-fr').style.display = l === 'fr' ? 'block' : 'none';
@@ -868,6 +899,19 @@ function renderCatalog() {
   CATS.forEach(cat => {
     const items = EQUIPMENT.filter(e => e.category === cat.key);
     html += `<div class="cat-section"><div class="cat-header"><div class="cat-title">${t.cats[cat.key]}</div><div class="cat-count">${items.length} ${t.items}</div></div><div class="gear-grid">`;
+    if (cat.key === 'addon') {
+      const reqTitle = lang === 'en' ? 'Need something else?' : 'Besoin d’autre chose?';
+      const reqSub = lang === 'en' ? "Don't see what you need? Send us a message." : "Tu ne vois pas ce qu'il te faut? Envoie-nous un message.";
+      const reqLink = lang === 'en' ? 'Request an item' : 'Demander un article';
+      const mailtoReq = 'mailto:maisondubaroque@gmail.com?subject=' + encodeURIComponent('Add-on Request') + '&body=' + encodeURIComponent('Hi, I would like to request an add-on item that is not listed on the site. Here is what I need:');
+      html += '<div class="gear-card" style="border-style:dashed;background:transparent">'
+            + '<div class="request-item-card">'
+            + '<div class="request-item-card-icon">+</div>'
+            + '<div class="request-item-card-title">' + reqTitle + '</div>'
+            + '<div class="request-item-card-sub">' + reqSub + '</div>'
+            + '<a href="' + mailtoReq + '" class="request-item-link">' + reqLink + '</a>'
+            + '</div></div>';
+    }
     items.forEach(item => {
       const inCart = !!cart[item.id];
       html += `<div class="gear-card ${inCart?'in-cart':''}" id="card-${item.id}">
@@ -876,7 +920,7 @@ function renderCatalog() {
         <div class="gear-desc">${item.desc[lang]}</div>
         <div class="gear-pricing"><div class="gear-price">$${item.daily}</div><div class="gear-per">${t.perDay}</div><div class="gear-week">$${item.daily*3} ${t.perWeek}</div></div>
         <div class="gear-deposit">${t.deposit}: <strong>$${item.deposit} CAD</strong></div>
-        <button class="add-btn ${inCart?'active':''}" onclick="toggleCart('${item.id}')">${inCart?t.addedBtn:t.addBtn}</button>
+        <button class="add-btn ${inCart?'active':''}" onclick="toggleCart('${item.id}')">${inCart?`<span class="btn-default">${t.addedBtn}</span><span class="btn-hover">${t.removeBtn}</span>`:t.addBtn}</button>
       </div>`;
     });
     html += `</div></div>`;
@@ -954,11 +998,6 @@ function submitReservation() {
   });
   if (!valid) { alert(t.alertFields); return; }
   if (!Object.keys(cart).length) { alert(t.alertCart); return; }
-  if (!document.getElementById('terms-checkbox').checked) {
-    document.getElementById('terms-wrap').classList.add('error');
-    alert(t.alertTerms); return;
-  }
-  document.getElementById('terms-wrap').classList.remove('error');
 
   const fname = document.getElementById('first-name').value.trim();
   const lname = document.getElementById('last-name').value.trim();
@@ -970,30 +1009,95 @@ function submitReservation() {
   const city = document.getElementById('city').value.trim();
   const postal = document.getElementById('postal').value.trim();
   const notes = document.getElementById('notes').value.trim();
+  const instagram = document.getElementById('instagram').value.trim();
+  const wantsCopy = document.getElementById('copy-checkbox').value === '1';
+  const wantsMarketing = document.getElementById('marketing-checkbox').value === '1';
   const items = Object.values(cart);
   const subtotal = items.reduce((a,{item})=>a+item.daily*rentalDays,0);
   const dep = items.reduce((a,{item})=>a+item.deposit,0);
   const dl = rentalDays===1?'day':'days';
   const gearList = items.map(({item})=>`- ${item.name.en}: $${item.daily}/day x ${rentalDays} ${dl} = $${item.daily*rentalDays} CAD`).join('\n');
 
-  const subject = encodeURIComponent(`Rental Request — ${fname} ${lname} — ${pickup}`);
-  const body = encodeURIComponent(
-    `RENTAL REQUEST — MDB RENTALS\n\nName: ${fname} ${lname}\nEmail: ${email}\nPhone: ${phone}\nAddress: ${address}, ${city}, ${postal}\n\nPickup: ${pickup}\nReturn: ${ret}\nDays: ${rentalDays}\n\nEQUIPMENT:\n${gearList}\n\nRental Total: $${subtotal} CAD\nSecurity Deposit: $${dep} CAD\nTotal (Rental + Deposit): $${subtotal+dep} CAD\n\n${notes?'Notes: '+notes+'\n\n':''}Rental terms accepted online. Signed agreement + 2 IDs required at pickup.\nAwaiting confirmation.`
-  );
-  window.location.href = `mailto:maisondubaroque@gmail.com?subject=${subject}&body=${body}`;
+  const messageBody = `RENTAL REQUEST — MDB RENTALS
 
-  document.getElementById('confirm-details').innerHTML = `
-    <div class="confirm-details-title">${t.confirmSummaryTitle}</div>
-    <div class="confirm-row"><span>${t.crName}</span><span>${fname} ${lname}</span></div>
-    <div class="confirm-row"><span>${t.crPickup}</span><span>${pickup}</span></div>
-    <div class="confirm-row"><span>${t.crReturn}</span><span>${ret}</span></div>
-    <div class="confirm-row"><span>${t.crEquipment}</span><span>${items.map(({item})=>item.name[lang]).join(', ')}</span></div>
-    <div class="confirm-row"><span>${t.crRentalTotal}</span><span>$${subtotal} CAD</span></div>
-    <div class="confirm-row"><span>${t.crDeposit}</span><span>$${dep} CAD</span></div>`;
-  document.getElementById('confirm-title').textContent = t.confirmTitle;
-  document.getElementById('confirm-sub').textContent = t.confirmSub;
-  document.getElementById('browse-more-btn').textContent = t.browseMore;
-  cart = {}; updateCartBtn(); showPage('confirm');
+Name: ${fname} ${lname}
+Email: ${email}
+Phone: ${phone}${instagram ? '\nInstagram/Portfolio: ' + instagram : ''}
+Address: ${address}, ${city}, ${postal}
+
+Pickup: ${pickup}
+Return: ${ret}
+Days: ${rentalDays}
+
+EQUIPMENT:
+${gearList}
+
+Rental Total: $${subtotal} CAD
+Security Deposit: $${dep} CAD
+Total (Rental + Deposit): $${subtotal+dep} CAD
+${notes ? '\nNotes: ' + notes : ''}${wantsMarketing ? '\n\nClient opted in to marketing/deals.' : ''}
+
+Rental terms accepted online. Signed agreement + 2 IDs required at pickup.`;
+
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.textContent = lang === 'en' ? 'SENDING...' : 'ENVOI EN COURS...';
+  document.getElementById('form-error').classList.remove('visible');
+
+  const params = {
+    to_email: 'maisondubaroque@gmail.com',
+    from_name: fname + ' ' + lname,
+    from_email: email,
+    reply_to: email,
+    email: email,
+    subject: 'Rental Request — ' + fname + ' ' + lname + ' — ' + pickup,
+    message: messageBody
+  };
+
+  emailjs.send('service_6mfjab9', 'template_68ykjqp', params)
+    .then(() => {
+      if (wantsCopy) {
+        const copyParams = {
+          to_email: email,
+          from_name: 'MDB Rentals',
+          from_email: 'maisondubaroque@gmail.com',
+          reply_to: 'maisondubaroque@gmail.com',
+          subject: 'Your Rental Request — MDB Rentals',
+          message: messageBody
+        };
+        return emailjs.send('service_6mfjab9', 'template_68ykjqp', copyParams);
+      }
+    })
+    .then(() => {
+      document.getElementById('confirm-details').innerHTML = `
+        <div class="confirm-details-title">${t.confirmSummaryTitle}</div>
+        <div class="confirm-row"><span>${t.crName}</span><span>${fname} ${lname}</span></div>
+        <div class="confirm-row"><span>${t.crPickup}</span><span>${pickup}</span></div>
+        <div class="confirm-row"><span>${t.crReturn}</span><span>${ret}</span></div>
+        <div class="confirm-row"><span>${t.crEquipment}</span><span>${items.map(({item})=>item.name[lang]).join(', ')}</span></div>
+        <div class="confirm-row"><span>${t.crRentalTotal}</span><span>$${subtotal} CAD</span></div>
+        <div class="confirm-row"><span>${t.crDeposit}</span><span>$${dep} CAD</span></div>`;
+      document.getElementById('confirm-title').textContent = t.confirmTitle;
+      document.getElementById('confirm-sub').textContent = t.confirmSub;
+      document.getElementById('browse-more-btn').textContent = t.browseMore;
+      cart = {}; updateCartBtn(); showPage('confirm');
+    })
+    .catch(() => {
+      btn.disabled = false;
+      btn.textContent = t.submitBtn;
+      document.getElementById('form-error').classList.add('visible');
+    });
+}
+
+// ============================================================
+// CUSTOM CHECKBOX TOGGLE
+// ============================================================
+function toggleCheck(iconId, inputId) {
+  const icon = document.getElementById(iconId);
+  const input = document.getElementById(inputId);
+  const isChecked = input.value === '1';
+  input.value = isChecked ? '0' : '1';
+  icon.classList.toggle('checked', !isChecked);
 }
 
 // ============================================================

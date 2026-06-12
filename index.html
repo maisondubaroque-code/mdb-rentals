@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -194,6 +196,17 @@ footer{border-top:1px solid var(--border);padding:28px 40px;display:flex;justify
 .footer-info{font-size:12px;color:var(--muted);line-height:1.8;text-align:right}
 .footer-info a{color:var(--gold);text-decoration:none}
 
+/* SEARCH BAR */
+.search-wrap{max-width:1180px;margin:0 auto;padding:0 40px 28px}
+.search-inner{position:relative;display:flex;align-items:center}
+.search-icon{position:absolute;left:14px;color:var(--muted);pointer-events:none;font-size:16px;line-height:1}
+.search-input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 40px 12px 40px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;transition:border-color 0.2s}
+.search-input:focus{border-color:var(--gold)}
+.search-input::placeholder{color:var(--muted)}
+.search-clear{position:absolute;right:14px;background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;line-height:1;padding:0;display:none}
+.search-clear.visible{display:block}
+.search-no-results{text-align:center;padding:60px 20px;color:var(--muted);font-size:14px}
+
 /* RESPONSIVE */
 @media(max-width:768px){
   header{padding:0 18px}
@@ -276,6 +289,14 @@ footer{border-top:1px solid var(--border);padding:28px 40px;display:flex;justify
           maisondubaroque@gmail.com
         </a>
       </div>
+    </div>
+  </div>
+
+  <div class="search-wrap">
+    <div class="search-inner">
+      <span class="search-icon"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+      <input class="search-input" id="search-input" type="text" placeholder="Search gear — Sony A7S III, gimbal, drone..." oninput="handleSearch(this.value)">
+      <button class="search-clear" id="search-clear" onclick="clearSearch()">×</button>
     </div>
   </div>
 
@@ -708,7 +729,13 @@ const EQUIPMENT = [
   { id:'batteries', category:'addon', tag:'Power', daily:50, deposit:200,
     name:{en:'2 Extra Batteries + Charger',fr:'2 Batteries supplémentaires + Chargeur'},
     desc:{en:'Shoot all day without interruption',fr:'Tournez toute la journée sans interruption'} },
-  { id:'rs4', category:'addon', tag:'Stabilizer', daily:50, deposit:400,
+  { id:'rs5', category:'addon', tag:'Stabilizer', daily:50, deposit:400,
+    name:{en:'DJI RS5 Gimbal',fr:'DJI RS5 Gimbal'},
+    desc:{en:'Professional 3-axis stabilizer',fr:'Stabilisateur 3 axes professionnel'} },
+  { id:'rs4pro', category:'addon', tag:'Stabilizer', daily:50, deposit:400,
+    name:{en:'DJI RS4 Pro Gimbal',fr:'DJI RS4 Pro Gimbal'},
+    desc:{en:'Professional 3-axis stabilizer',fr:'Stabilisateur 3 axes professionnel'} },
+  { id:'rs4', category:'addon', tag:'Stabilizer', daily:40, deposit:350,
     name:{en:'DJI RS4 Gimbal',fr:'DJI RS4 Gimbal'},
     desc:{en:'Professional 3-axis stabilizer',fr:'Stabilisateur 3 axes professionnel'} },
   { id:'ninjav', category:'addon', tag:'Monitor', daily:20, deposit:250,
@@ -720,18 +747,31 @@ const EQUIPMENT = [
   { id:'tripod-heavy', category:'addon', tag:'Support', daily:40, deposit:200,
     name:{en:'Heavy Duty Tripod',fr:'Trépied robuste'},
     desc:{en:'Professional heavy duty tripod, stable for any camera and lens combo',fr:'Trépied professionnel robuste, stable pour toutes les combinaisons caméra et objectif'} },
-  { id:'cfexpress', category:'addon', tag:'Storage', daily:20, deposit:150,
-    name:{en:'CFexpress Type-A 160GB',fr:'CFexpress Type-A 160GB'},
+  { id:'cfexpress', category:'addon', tag:'Storage', daily:60, deposit:150,
+    name:{en:'CFexpress Type-A 1TB',fr:'CFexpress Type-A 1TB'},
     desc:{en:'High-speed card for 4K and slow-motion recording',fr:'Carte rapide pour enregistrement 4K et ralenti'} },
-  { id:'sdcard', category:'addon', tag:'Storage', daily:10, deposit:100,
+  { id:'sdcard512', category:'addon', tag:'Storage', daily:50, deposit:150,
+    name:{en:'SD Card V90 512GB',fr:'Carte SD V90 512GB'},
+    desc:{en:'Ultra-fast V90 SD card',fr:'Carte SD V90 ultra-rapide'} },
+  { id:'sdcard128', category:'addon', tag:'Storage', daily:30, deposit:100,
     name:{en:'SD Card V90 128GB',fr:'Carte SD V90 128GB'},
     desc:{en:'Ultra-fast V90 SD card',fr:'Carte SD V90 ultra-rapide'} },
+  { id:'tascam-x6', category:'addon', tag:'Audio', daily:40, deposit:300,
+    name:{en:'TASCAM Portacapture X6 — Wedding Kit',fr:'TASCAM Portacapture X6 — Kit Mariage'},
+    desc:{en:'32-bit float portable audio recorder · Includes 2 cables for recording speeches, ceremonies & conferences',fr:'Enregistreur audio portable 32-bit float · Inclut 2 câbles pour discours, cérémonies et conférences'} },
   { id:'cage', category:'addon', tag:'Rig', daily:5, deposit:80,
     name:{en:'Camera Cage',fr:'Cage caméra'},
     desc:{en:'Universal camera cage for added protection and mounting options',fr:'Cage caméra universelle pour protection accrue et options de montage'} },
   { id:'kanuk-case', category:'addon', tag:'Protection', daily:10, deposit:150,
     name:{en:'Kanuk Camera Case',fr:'Valise Kanuk'},
     desc:{en:'Padded hard case, ideal for transporting your gear safely',fr:'Valise rigide rembourrée, idéale pour transporter ton équipement en toute sécurité'} },
+  // DRONES
+  { id:'dji-air3s', category:'drone', tag:'4K Drone', daily:150, deposit:600,
+    name:{en:'DJI Air 3S',fr:'DJI Air 3S'},
+    desc:{en:'Flagship drone · Includes hard case, 2 batteries, RC 2 screen remote controller & variable ND filters',fr:'Drone phare · Inclut valise rigide, 2 batteries, télécommande RC 2 avec écran et filtres ND variables'} },
+  { id:'dji-mini5', category:'drone', tag:'Compact Drone', daily:125, deposit:500,
+    name:{en:'DJI Mini 5',fr:'DJI Mini 5'},
+    desc:{en:'Compact sub-250g drone · Includes hard case, 2 batteries, RC 2 screen remote controller & variable ND filters',fr:'Drone compact sous 250g · Inclut valise rigide, 2 batteries, télécommande RC 2 avec écran et filtres ND variables'} },
 ];
 
 // ============================================================
@@ -746,7 +786,7 @@ const T = {
     metaPeriod:'Rental Period', metaValPeriod:'Full Day (24h)',
     buysellTitle:'WE ALSO BUY & SELL USED GEAR',
     buysellDesc:"Looking to sell your camera body, lenses, or accessories? We buy used Sony gear and also have equipment available for sale. Reach out and let's talk.",
-    cats:{camera:'Cameras',lens:'Lenses',addon:'Add-ons'},
+    cats:{camera:'Cameras',lens:'Lenses',drone:'Drones',addon:'Add-ons'},
     items:'items', addBtn:'+ Add to Request', addedBtn:'✓ Added', removeBtn:'✕ Remove', cartLabel:'Reserve',
     backLabel:'Back to equipment', termsBackLabel:'Back to reservation',
     reserveEyebrow:'Rental Request', reserveTitle:'RESERVATION',
@@ -778,6 +818,8 @@ const T = {
     alertCart:'Please add at least one item to your request.',
     alertTerms:'Please agree to the rental terms before submitting.',
     termsReturnBtn:'← Return to Reservation',lblInstagram:'Instagram handle or portfolio (optional)',copyCheck:'Send a copy of this request to my email',marketingCheck:'I\'m open to receiving discount offers and deals from MDB Rentals',
+    searchPlaceholder:'Search gear — Sony A7S III, gimbal, drone...',
+    searchNoResults:'No gear found for',
   },
   fr: {
     heroEyebrow:"Location d'équipement — Montréal",
@@ -787,7 +829,7 @@ const T = {
     metaPeriod:'Période', metaValPeriod:'Journée complète (24h)',
     buysellTitle:'ON ACHÈTE ET REVEND DU MATÉRIEL USAGÉ',
     buysellDesc:"Tu cherches à vendre ton boîtier, tes objectifs ou tes accessoires? On achète le matériel Sony usagé et on a également de l'équipement à vendre. Contacte-nous.",
-    cats:{camera:'Caméras',lens:'Objectifs',addon:'Accessoires'},
+    cats:{camera:'Caméras',lens:'Objectifs',drone:'Drones',addon:'Accessoires'},
     items:'articles', addBtn:'+ Ajouter à la demande', addedBtn:'✓ Ajouté', removeBtn:'✕ Retirer', cartLabel:'Réserver',
     backLabel:"Retour à l'équipement", termsBackLabel:'Retour à la réservation',
     reserveEyebrow:'Demande de location', reserveTitle:'RÉSERVATION',
@@ -819,6 +861,8 @@ const T = {
     alertCart:'Veuillez ajouter au moins un article à votre demande.',
     alertTerms:'Veuillez accepter les conditions de location avant de soumettre.',
     termsReturnBtn:'← Retour à la réservation',lblInstagram:'Handle Instagram ou portfolio (optionnel)',copyCheck:'Recevoir une copie de cette demande par courriel',marketingCheck:'J\'accepte de recevoir des offres et promotions de MDB Rentals',
+    searchPlaceholder:'Rechercher — Sony A7S III, gimbal, drone...',
+    searchNoResults:'Aucun équipement trouvé pour',
   }
 };
 
@@ -869,6 +913,7 @@ function setLang(l) {
   setTxt('copy-check-text', t.copyCheck);
   setTxt('marketing-check-text', t.marketingCheck);
   set('footer-info', t.footerInfo);
+  document.getElementById('search-input').placeholder = t.searchPlaceholder;
   document.getElementById('terms-en').style.display = l === 'en' ? 'block' : 'none';
   document.getElementById('terms-fr').style.display = l === 'fr' ? 'block' : 'none';
   renderCatalog(); renderSummary();
@@ -891,11 +936,52 @@ function showTerms() {
 // ============================================================
 // CATALOG
 // ============================================================
-const CATS = [{key:'camera'},{key:'lens'},{key:'addon'}];
+const CATS = [{key:'camera'},{key:'lens'},{key:'drone'},{key:'addon'}];
+let searchQuery = '';
+
+function handleSearch(val) {
+  searchQuery = val.toLowerCase().trim();
+  document.getElementById('search-clear').classList.toggle('visible', searchQuery.length > 0);
+  renderCatalog();
+}
+
+function clearSearch() {
+  searchQuery = '';
+  document.getElementById('search-input').value = '';
+  document.getElementById('search-clear').classList.remove('visible');
+  renderCatalog();
+}
 
 function renderCatalog() {
   const t = T[lang];
   let html = '';
+
+  if (searchQuery) {
+    const results = EQUIPMENT.filter(e => {
+      const haystack = (e.name.en + ' ' + e.name.fr + ' ' + e.desc.en + ' ' + e.desc.fr + ' ' + e.tag + ' ' + e.category).toLowerCase();
+      return haystack.includes(searchQuery);
+    });
+    if (results.length === 0) {
+      document.getElementById('catalog-container').innerHTML = `<div class="catalog"><div class="search-no-results">${t.searchNoResults} "<strong>${document.getElementById('search-input').value}</strong>"</div></div>`;
+      return;
+    }
+    html += `<div class="catalog"><div class="cat-section"><div class="cat-header"><div class="cat-title">${results.length} result${results.length !== 1 ? 's' : ''}</div></div><div class="gear-grid">`;
+    results.forEach(item => {
+      const inCart = !!cart[item.id];
+      html += `<div class="gear-card ${inCart?'in-cart':''}" id="card-${item.id}">
+        <span class="gear-tag">${item.tag}</span>
+        <div class="gear-name">${item.name[lang]}</div>
+        <div class="gear-desc">${item.desc[lang]}</div>
+        <div class="gear-pricing"><div class="gear-price">$${item.daily}</div><div class="gear-per">${t.perDay}</div><div class="gear-week">$${item.daily*3} ${t.perWeek}</div></div>
+        <div class="gear-deposit">${t.deposit}: <strong>$${item.deposit} CAD</strong></div>
+        <button class="add-btn ${inCart?'active':''}" onclick="toggleCart('${item.id}')">${inCart?`<span class="btn-default">${t.addedBtn}</span><span class="btn-hover">${t.removeBtn}</span>`:t.addBtn}</button>
+      </div>`;
+    });
+    html += `</div></div></div>`;
+    document.getElementById('catalog-container').innerHTML = html;
+    return;
+  }
+
   CATS.forEach(cat => {
     const items = EQUIPMENT.filter(e => e.category === cat.key);
     html += `<div class="cat-section"><div class="cat-header"><div class="cat-title">${t.cats[cat.key]}</div><div class="cat-count">${items.length} ${t.items}</div></div><div class="gear-grid">`;
